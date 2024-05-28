@@ -1,0 +1,25 @@
+name: 'Check Meds Action'
+description: 'A GitHub Action to check if the branch is up to date with the base branch'
+author: 'RecordLinkingLab recordlinkinglab@gmail.com'
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check if branch is up to date
+      shell: bash
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+        git fetch origin ${{ github.head_ref }}:${{ github.head_ref }}
+        git checkout ${{ github.head_ref }}
+        OUTPUT=$(git merge ${{ github.base_ref }} --no-commit --no-ff)
+        if [[ $OUTPUT != *"Already up to date"* ]]
+        then
+          echo "The branch \"${{ github.head_ref }}\" has not merged all the changes from \"${{ github.base_ref }}.\" Take your meds!"
+          exit 1
+        else
+          echo "The branch \"${{ github.head_ref }}\" has merged all the changes from \"${{ github.base_ref }}.\" Thank you for taking your meds!"
+        fi
