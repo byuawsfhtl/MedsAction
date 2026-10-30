@@ -10,6 +10,10 @@ runs:
     - name: Check if branch is up to date
       shell: bash
       run: |
+        if [[ ("${{ github.base_ref }}" == "stg" && "${{ github.head_ref }}" == "dev") || ("${{ github.base_ref }}" == "prd" && "${{ github.head_ref }}" == "stg") ]]; then
+          echo "Skipping check for ${{ github.head_ref }} -> ${{ github.base_ref }}."
+          exit 0
+        fi
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
